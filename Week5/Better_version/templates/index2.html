@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>week5 - exercise</title>
+    <!-- Bootstrap -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container">
+      {{ pagination.links }}
+
+        <br>
+        <hr class="style1">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              {% for item in users.columns.values %}
+                <th>{{ item }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in range(users.shape[0]) %}
+            <tr>
+                {% for item in users.loc[loop.index + (page - 1) * per_page - 1] %}
+              <td>{{ item }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <form>
+        <div class="form-group row">
+          <label for="inputCountryName">Country Name</label>
+          <input type="text" id="inputCountryName">
+          <label for="inputSeriesName">Series Name</label>
+          <input type="text" id="inputSeriesName">
+          <label for="input2010">2010</label>
+          <input type="text" id="input2010">
+          <label for="input2011">2011</label>
+          <input type="text" id="input2011">
+          <label for="input2012">2012</label>
+          <input type="text" id="input2012">
+          <label for="input2013">2013</label>
+          <input type="text" id="input2013">
+          <label for="input2014">2014</label>
+          <input type="text" id="input2014">
+        </div>
+          <button type="submit" onclick="updateInfo()">Add</button>
+          <!-- <div class="form-group row">
+            <label for="inputCountryName" class="col-sm-2 col-form-label">Country Name</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="inputCountryName">
+            </div>
+            <label for="inputSeriesName" class="col-sm-2 col-form-label">Series Name</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="inputSeriesName">
+            </div>
+          </div> 
+          <div class="form-group row">
+            <label for="input2010" class="col-sm-2 col-form-label">2010[YR2010]</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="input2010">
+            </div>
+
+            <label for="input2011" class="col-sm-2 col-form-label">2011[YR2011]</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="input2011">
+            </div>
+
+            <label for="input2012" class="col-sm-2 col-form-label">2012[YR2012]</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="input2012">
+            </div>
+
+            <label for="input2013" class="col-sm-2 col-form-label">2013[YR2013]</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="input2013">
+            </div>
+            <label for="input2014" class="col-sm-2 col-form-label">2014[YR2014]</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="input2014">
+            </div>
+
+          </div>
+
+            <div class="col-sm-3">
+              <button type="submit" class="btn btn-primary" onclick="updateInfo()">Insert</button>
+            </div>
+            -->
+    </form>
+        <br>
+        <hr class="style1">
+      {{ pagination.links }}
+    </div>
+  </body>
+
+  <script>
+      let countryName = document.getElementById("inputCountryName");
+      let seriesName = document.getElementById("inputSeriesName");
+      let input2010 = document.getElementById("input2010");
+      let input2011 = document.getElementById("input2011");
+      let input2012 = document.getElementById("input2012");
+      let input2013 = document.getElementById("input2013");
+      let input2014 = document.getElementById("input2014");
+      function updateInfo() {
+        let counNamet = countryName.value;
+        let seriNamet = seriesName.value;
+        let input2010t = input2010.value;
+        let input2011t = input2011.value;
+        let input2012t = input2012.value;
+        let input2013t = input2013.value;
+        let input2014t = input2014.value;
+
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "/update", true);
+        xhr.setRequestHeader("Content-type", "application/json");
+        xhr.setRequestHeader("kbn-version", "5.3.0");
+        xhr.send(JSON.stringify({
+            "CountryName" : counNamet,
+            "SeriesName" : seriNamet,
+            "2010[YR2010]" : input2010t,
+            "2011[YR2011]" : input2011t,
+            "2012[YR2012]" : input2012t,
+            "2013[YR2013]" : input2013t,
+            "2014[YR2014]" : input2014t
+        }));
+      }
+  </script>
+</html>

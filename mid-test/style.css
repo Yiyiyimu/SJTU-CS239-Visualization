@@ -1,0 +1,32 @@
+body {
+    font: 10px sans-serif;
+}
+.axis path, .axis line {
+    fill: none;
+    stroke: #888;
+    shape-rendering: crispEdges;
+}
+.bar {
+    color:#ccc ;
+}
+button {
+    background-color: gainsboro;
+    border: none;
+}
+button:focus {
+    background-color: gray;
+    border: none;
+    color: white;
+}
+.x.axis path {
+    display: none; 
+}
+.fd{
+    width:18px;
+    height:1px;
+    margin-top:2px;
+    background-color: green;
+}
+#container{
+    width:1050px;
+}

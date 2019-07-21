@@ -1,0 +1,133 @@
+<html>
+    <head>
+        <title>test2</title>
+        <link rel='stylesheet' href='style.css'>
+    </head>
+    <body>
+        <ul>
+            <span class="circle plus" onclick='add()'></span>
+            <span class="circle minus" onclick='del()'></span>
+            <button type="button" onclick='refresh()'>Re</button>
+        </ul>
+
+    </body>
+    <script src='https://d3js.org/d3.v5.min.js'></script>
+    <script>
+        function add() {
+            dataset.push(Math.random()*500)
+            draw()
+        }
+        function del() {
+            dataset.pop()
+            draw()
+        }
+        function refresh() {
+            dataset = []
+            for (var i = 0; i < 20; i++){
+                dataset.push(Math.random()*500)
+            }
+            draw()
+        }
+        
+        function draw(){
+            var updateRect = svg.selectAll('rect')
+                .data(dataset)
+            var enterRect = updateRect.enter()
+            var exitRect = updateRect.exit()
+            
+            updateRect
+                .attr("fill","steelblue")		
+                .attr("x", function(d,i){
+                    return padding.left+ i * rectStep;
+                } )
+                .attr("width", rectWidth)
+                .attr("y",function(d){
+                    return height-padding.bottom-d;
+                })
+                .attr("height", function(d){
+                    return d;
+                }) 
+                .on("mouseover",function(d,i){
+                    d3.select(this)
+                        .attr("fill","red");
+                })
+                .on("mouseout",function(d,i){
+                    d3.select(this)
+                        .transition()
+                        .duration(500)
+                        .attr("fill","steelblue"); 
+                })
+                
+            
+            enterRect
+                .append("rect")
+                .attr("fill","turquoise")	
+                .attr("x", function(d,i){
+                    return padding.left+ i * rectStep;
+                } )
+                .attr("width", rectWidth)
+                .attr("y",function(d){
+                    return height-padding.bottom;
+                })
+                .attr("height", function(d){
+                    return 0;
+                })
+                .transition()
+                .duration(1000)
+                .ease(d3.easeBounce)
+                .attr("y",function(d){
+                    return height-padding.bottom-d;
+                })
+                .attr("height", function(d){
+                    return d;
+                })
+            
+            exitRect.remove();
+        }
+
+        var width = 1400;
+        var height = 500;
+        var svg = d3.select('body')
+            .append('svg')
+            .attr('width',width)
+            .attr('height',height)
+
+        var padding = {left:30, right:30, top:20, bottom:20}
+        
+
+        var dataset = []
+        for (var i = 0; i < 20; i++){
+            dataset.push(Math.random()*500)
+        }
+
+        var rectStep = 25
+        var rectWidth = 20
+        var rectPadding = 4
+        console.log(dataset)
+        var rects = svg.selectAll("rect")
+            .data(dataset)
+            .enter()
+            .append("rect")
+            .attr('fill','steelblue')
+            .attr("x", function(d,i){
+                return padding.left+ i * rectStep;
+            } )
+            .attr("width", rectWidth)
+            .attr("y",function(d){
+                return height-padding.bottom-d;
+            })
+            .attr("height", function(d){
+                return d;
+            })
+            .on("mouseover",function(d,i){
+                d3.select(this)
+                    .attr("fill","red");
+            })
+            .on("mouseout",function(d,i){
+                d3.select(this)
+                    .transition()
+                    .duration(500)
+                    .attr("fill","steelblue"); 
+            })           
+    </script>
+</html>

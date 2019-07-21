@@ -1,0 +1,91 @@
+body {
+    background: #fcfcfa;
+  }
+  
+  
+.stroke {
+  fill: none;
+  stroke: #000;
+  stroke-width: 3px;
+}
+
+.fill {
+  fill: #fff;
+}
+
+.graticule {
+  fill: none;
+  stroke: #777;
+  stroke-width: .5px;
+  stroke-opacity: .5;
+}
+
+.land {
+  fill: #bbb;
+  stroke: #fff;
+  stroke-width: .5px;
+}
+
+.boundary {
+  fill: none;
+  stroke: #fff;
+  stroke-width: .5px;
+}
+
+.points circle {
+  fill: #fff;
+  stroke: red;
+  stroke-width: 1px;
+}
+
+.points text {
+  font: 11px sans-serif;
+  text-anchor: middle;
+  text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
+}
+
+.points text:hover {
+  font: 18px sans-serif;
+  font-weight: bold;
+}
+
+.route {
+  fill: none;
+  stroke: red;
+  stroke-width: 3px;
+}
+
+.route:hover {
+  stroke-width: 4px;
+}
+
+
+.btn-group button {
+  background-color: #cccccc; /* Green background */
+  border: 1px solid black; /* Green border */
+  color: #111111; /* White text */
+  padding: 4px 10px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  float: left; /* Float the buttons side by side */
+}
+
+/* Clear floats (clearfix hack) */
+.btn-group:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.btn-group button:not(:last-child) {
+  border-right: none; /* Prevent double borders */
+}
+
+/* Add a background color on hover */
+.btn-group button:hover {
+  background-color: #999999;
+}
+
+.btn-group button:focus {
+  background-color: #536872;
+  color: #fff;
+}

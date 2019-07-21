@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="Static/style.css">
+  </head>
+  <body>
+    <button id='name_people' autofocus> 姓名 </button>
+    <p></p>
+    <div class="btn-group" id='tab'>
+      
+    </div>
+    <svg id='svg'></svg>
+    <svg id='svg_color'></svg>
+    <svg id='svg_chart'></svg>
+    <p>以出生地分类</p>
+    <button id='province'> 每省人数 </button>
+    <button id='perprovince'> 每省人数/亿人 </button>
+    
+
+    <script src="http://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script href="data/d3.geo.projection.v2.min.js"></script>
+    <script charset='utf-8'>
+
+    var width = 1000,
+        height = 800;
+
+    var places = {
+      陕西延川: [110.18, 36.88],
+      北京: [116.40, 39.90],
+      河北正定: [114.57, 38.15],
+      福建厦门: [118.08, 24.28],
+      福建宁德: [119.52, 26.67],
+      福建福州: [119.30, 26.08],
+      浙江杭州: [120.15, 30.28],
+      北京: [116.40, 39.90]
+    };
+
+    var py = {
+      陕西延川: 1969,
+      北京: 1979,
+      河北正定: 1982,
+      福建厦门: 1985,
+      福建宁德: 1988,
+      福建福州: 1990,
+      浙江杭州: 2002,
+      北京: 2007
+    };
+
+    var route = {
+      type: "LineString",
+      coordinates: [
+        places.陕西延川,
+        places.北京,
+        places.河北正定,
+        places.福建厦门,
+        places.福建宁德,
+        places.福建福州,
+        places.浙江杭州,
+        places.北京
+      ]
+    };
+
+    console.log(route)
+
+    var projection = d3.geoMercator()
+        .scale(800)
+        .center([104, 38])
+        .translate([width / 2, height / 2])
+        .precision(.1);
+
+    var path = d3.geoPath()
+        .projection(projection);
+
+    var graticule = d3.geoGraticule();
+
+    var svg = d3.select("#svg")
+        .attr("width", width)
+        .attr("height", height);
+    
+
+    d3.csv("data/res_cor.csv", function(d) {
+      return {
+        name: d.name,
+        year: d.year,
+        place: d.place,
+        lon: +d.lon,
+        lat: +d.lat
+      };
+      }, function(error ,rows) {
+      console.log(rows[0]);
+    
+
+    d3.json("data/china.json", function(error, china) {
+      if (error) throw error;
+
+
+      svg.append("text")
+        .attr('x',width/2)
+        .attr('y',300)
+        .attr("class", "selectName")
+        .text('习近平')
+
+
+      svg.append("g").selectAll("path")
+          .data(china.features)
+          .enter()
+          .append("path")
+          .attr("class", "land")
+          .attr("d", path);
+
+      svg.append("svg:defs").append("svg:marker")
+        .attr("id", "triangle")
+        .attr("refX", 6)
+        .attr("refY", 6)
+        .attr("markerWidth", 50)
+        .attr("markerHeight", 50)
+        .attr("markerUnits","userSpaceOnUse")
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M 0 0 12 6 0 12 3 6")
+        .style("fill", "red");
+          
+      svg.append("path")
+        .datum(route)
+        .attr("marker-mid", "url(#triangle)")
+        .attr("d", path)
+        .attr("class", "route")
+        
+      var point = svg.append("g")
+          .attr("class", "points")
+        .selectAll("g")
+          .data(d3.entries(places))
+        .enter().append("g")
+          .attr("transform", function(d) { return "translate(" + projection(d.value) + ")"; });
+
+      point.append("circle")
+          .attr("r", 3);
+
+      point.append("text")
+          .attr("y", 10)
+          .attr("dy", ".71em")
+          .text(function(d) { return d.key; });
+
+      point.data(d3.entries(py))
+          .append("text")
+          .attr("y", -15)
+          .attr("dy", ".71em")
+          .text(function(d) { return d.value; });
+      
+      d3.csv("data/raw.csv", function(data) {
+        return {
+          name: data.Name
+        };
+        }, function(error ,Rrows) {
+
+        Rrows.sort(function(x, y){
+          return d3.ascending(x.name, y.name);
+        })
+
+        var raw_name = []
+        for (var i in Rrows)
+          raw_name.push(Rrows[i].name)
+
+        var but_name = document.getElementById('name_people').onclick = function() {
+          var raw_but = document.getElementById('tab')
+          for (var i in raw_name) {
+            var listBtn = document.createElement('button')
+            listBtn.textContent = raw_name[i]
+            listBtn.id = raw_name[i]
+            listBtn.onclick = function() {        //onclick
+              name = this.id
+              places = {}
+              route= {
+                type: "LineString",
+                coordinates: []
+              };
+              for (var i in rows) {
+                if (rows[i].name == name) {
+                  tmp_name = rows[i].place
+                  tmp_lon = rows[i].lon
+                  tmp_lat = rows[i].lat
+                  len = route.coordinates.length
+                  tmp_cor = {[len]: [tmp_lon,tmp_lat]}
+                  tmp_obj = {[tmp_name]: [tmp_lon,tmp_lat]}
+                  places = Object.assign(places, tmp_obj)
+                  route.coordinates = Object.assign(route.coordinates, tmp_cor)
+                }
+              }
+                            
+              document.getElementsByClassName('points')[0].remove()
+              document.getElementsByClassName('route')[0].remove()
+              document.getElementsByClassName('selectName')[0].remove()
+
+              svg.append("text")
+                .attr('x',width/2)
+                .attr('y',300)
+                .attr("class", "selectName")
+                .text(name)
+              
+              svg.append("path")
+                .datum(route)
+                .attr("marker-mid", "url(#triangle)")
+                .attr("d", path)
+                .attr("class", "route")
+                
+              var point = svg.append("g")
+                .attr("class", "points")
+                .selectAll("g")
+                .data(d3.entries(places))
+                .enter().append("g")
+                .attr("transform", function(d) { return "translate(" + projection(d.value) + ")"; });
+
+              point.append("circle")
+                .attr("r", 3);
+
+              point.append("text")
+                .attr("y", 10)
+                .attr("dy", ".71em")
+                .text(function(d) { return d.key; });
+
+              point.data(d3.entries(py))
+                .append("text")
+                .attr("y", -15)
+                .attr("dy", ".71em")
+                .text(function(d) { return d.value; });
+              }
+            raw_but.appendChild(listBtn)
+          }          
+          var listBtn = document.getElementById('习近平')
+          listBtn.autofocus = true
+        }
+      })
+
+      //////////////////////////bottom//////////////////////////
+      
+      d3.csv("data/popu.csv", function(data) {
+        return {
+          pro: data.pro,
+          times: +data.times,
+          pertimes: +data.pertimes
+        };
+        }, function(error ,Rrows) {
+        
+        data = d3.map();
+        times = []
+        pertimes = []
+
+        for(var idx=0; idx < Rrows.length; idx++) {
+          times.push(Rrows[idx].times)
+          pertimes.push(Rrows[idx].pertimes)
+          data.set(Rrows[idx].pro,Rrows[idx].times)
+        }
+        console.log(data)
+
+        val_min = d3.min(times)
+        val_max = d3.max(times)
+        val_gap = val_max - val_min
+
+        var colorScale = d3.scaleThreshold()
+          .domain([val_min,val_min+val_gap/4,val_min+val_gap/2,val_min+val_gap/4*3,val_max])
+          .range(d3.schemeReds[7]);
+
+        val_min = d3.min(pertimes)
+        val_max = d3.max(pertimes)
+        val_gap = val_max - val_min
+
+        var colorScalep = d3.scaleThreshold()
+          .domain([val_min,val_min+val_gap/4,val_min+val_gap/2,val_min+val_gap/4*3,val_max])
+          .range(d3.schemeBlues[7]);
+
+        
+        var div = d3.select("body").append("div")   
+          .attr("class", "tooltip")               
+          .style("opacity", 0);
+
+        var svg_co = d3.select("#svg_color")
+          .attr("width", width)
+          .attr("height", height)
+          .append("g").selectAll("path")
+          .data(china.features)
+          .enter()
+          .append("path")
+          .attr("d", path)
+          .attr("stroke", '#fff')
+          .attr("stroke-width", '.5px')
+          .attr("fill", function (d) {
+          return colorScale(data.get(d.properties.name));
+        })
+        .on("mouseover", function(d) {
+          d3.select(this).transition().duration(300).style("opacity", 0.5);
+          div.transition().duration(300)
+          .style("opacity", 1)
+          div.text(d.properties.name + " : " + data.get(d.properties.name))
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY -30) + "px");
+        })
+        .on("mouseout", function() {
+          d3.select(this)
+          .transition().duration(100)
+          .style("opacity", 1);
+          div.transition().duration(100)
+          .style("opacity", 0);
+        });
+        ///////////////////////////////////////
+        var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width_ = 1200 - margin.left - margin.right,
+        height_ = 300 - margin.top - margin.bottom;
+
+        // set the ranges
+        var x = d3.scaleBand()
+          .range([0, width_])
+          .padding(0.1);
+        var y = d3.scaleLinear()
+          .range([height_, 0]);
+                  
+
+        Rrows.sort(function(a, b) {
+            return b.times - a.times;
+          });
+
+        var svg_ch = d3.select("#svg_chart")
+            .attr("width", width_ + margin.left + margin.right)
+            .attr("height", height_ + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", 
+                  "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+          // Scale the range of the data in the domains
+          x.domain(Rrows.map(function(d) { return d.pro; }));
+          y.domain([0, d3.max(Rrows, function(d) { return d.times; })]);
+
+          // append the rectangles for the bar chart
+          svg_ch.selectAll(".bar")
+              .data(Rrows)
+            .enter().append("rect")
+              .attr("class", "bar")
+              .attr("x", function(d) { return x(d.pro); })
+              .attr("width", x.bandwidth())
+              .attr("y", function(d) { return y(d.times); })
+              .attr("height", function(d) { return height_ - y(d.times); });
+
+          // add the x Axis
+          svg_ch.append("g")
+              .attr("transform", "translate(0," + height_ + ")")
+              .call(d3.axisBottom(x));
+
+          // add the y Axis
+          svg_ch.append("g")
+              .call(d3.axisLeft(y));
+
+
+
+
+
+
+
+        var but_per = document.getElementById('perprovince').onclick = function() {
+
+          data = d3.map()
+
+        for(var idx=0; idx < Rrows.length; idx++) {
+          data.set(Rrows[idx].pro,Rrows[idx].pertimes)
+        }
+          var svg_co = d3.select("#svg_color")
+          .attr("width", width)
+          .attr("height", height)
+          .append("g").selectAll("path")
+          .data(china.features)
+          .enter()
+          .append("path")
+          .attr("d", path)
+          .attr("stroke", '#fff')
+          .attr("stroke-width", '.5px')
+          .attr("fill", function (d) {
+          return colorScalep(data.get(d.properties.name));
+        })
+        .on("mouseover", function(d) {
+          d3.select(this).transition().duration(300).style("opacity", 0.5);
+          div.transition().duration(300)
+          .style("opacity", 1)
+          div.text(d.properties.name + " : " + data.get(d.properties.name))
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY -30) + "px");
+        })
+        .on("mouseout", function() {
+          d3.select(this)
+          .transition().duration(100)
+          .style("opacity", 1);
+          div.transition().duration(100)
+          .style("opacity", 0);
+        });
+
+        
+        ////
+        var but_per = document.getElementById('perprovince').onclick = function() {
+
+          data = d3.map()
+
+        for(var idx=0; idx < Rrows.length; idx++) {
+          data.set(Rrows[idx].pro,Rrows[idx].pertimes)
+        }
+          var svg_co = d3.select("#svg_color")
+          .attr("width", width)
+          .attr("height", height)
+          .append("g").selectAll("path")
+          .data(china.features)
+          .enter()
+          .append("path")
+          .attr("d", path)
+          .attr("stroke", '#fff')
+          .attr("stroke-width", '.5px')
+          .attr("fill", function (d) {
+          return colorScalep(data.get(d.properties.name));
+        })
+        .on("mouseover", function(d) {
+          d3.select(this).transition().duration(300).style("opacity", 0.5);
+          div.transition().duration(300)
+          .style("opacity", 1)
+          div.text(d.properties.name + " : " + data.get(d.properties.name))
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY -30) + "px");
+        })
+        .on("mouseout", function() {
+          d3.select(this)
+          .transition().duration(100)
+          .style("opacity", 1);
+          div.transition().duration(100)
+          .style("opacity", 0);
+        });
+
+        d3.select("#svg_chart").remove()
+        var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width_ = 1200 - margin.left - margin.right,
+        height_ = 300 - margin.top - margin.bottom;
+
+        // set the ranges
+        var x = d3.scaleBand()
+          .range([0, width_])
+          .padding(0.1);
+        var y = d3.scaleLinear()
+          .range([height_, 0]);
+                  
+
+        Rrows.sort(function(a, b) {
+            return b.pertimes - a.pertimes;
+          });
+
+        var svg_ch = d3.select("#svg_chart")
+            .attr("width", width_ + margin.left + margin.right)
+            .attr("height", height_ + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", 
+                  "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+          // Scale the range of the data in the domains
+          x.domain(Rrows.map(function(d) { return d.pro; }));
+          y.domain([0, d3.max(Rrows, function(d) { return d.pertimes; })]);
+
+          // append the rectangles for the bar chart
+          svg_ch.selectAll(".bar")
+              .data(Rrows)
+            .enter().append("rect")
+              .attr("class", "bar")
+              .attr("x", function(d) { return x(d.pro); })
+              .attr("width", x.bandwidth())
+              .attr("y", function(d) { return y(d.pertimes); })
+              .attr("height", function(d) { return height_ - y(d.pertimes); });
+
+          // add the x Axis
+          svg_ch.append("g")
+              .attr("transform", "translate(0," + height_ + ")")
+              .call(d3.axisBottom(x));
+
+          // add the y Axis
+          svg_ch.append("g")
+              .call(d3.axisLeft(y));
+
+        }}
+        /////
+        var but_per = document.getElementById('province').onclick = function() {
+
+        data = d3.map()
+
+        for(var idx=0; idx < Rrows.length; idx++) {
+        data.set(Rrows[idx].pro,Rrows[idx].times)
+        }
+        var svg_co = d3.select("#svg_color")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g").selectAll("path")
+        .data(china.features)
+        .enter()
+        .append("path")
+        .attr("d", path)
+        .attr("stroke", '#fff')
+        .attr("stroke-width", '.5px')
+        .attr("fill", function (d) {
+        return colorScale(data.get(d.properties.name));
+        })
+        .on("mouseover", function(d) {
+        d3.select(this).transition().duration(300).style("opacity", 0.5);
+        div.transition().duration(300)
+        .style("opacity", 1)
+        div.text(d.properties.name + " : " + data.get(d.properties.name))
+        .style("left", (d3.event.pageX) + "px")
+        .style("top", (d3.event.pageY -30) + "px");
+        })
+        .on("mouseout", function() {
+        d3.select(this)
+        .transition().duration(100)
+        .style("opacity", 1);
+        div.transition().duration(100)
+        .style("opacity", 0);
+        });
+        
+        
+        d3.select("#svg_chart").remove()
+        var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width_ = 1200 - margin.left - margin.right,
+        height_ = 300 - margin.top - margin.bottom;
+
+        // set the ranges
+        var x = d3.scaleBand()
+          .range([0, width_])
+          .padding(0.1);
+        var y = d3.scaleLinear()
+          .range([height_, 0]);
+                  
+
+        Rrows.sort(function(a, b) {
+            return b.times - a.times;
+          });
+
+        var svg_ch = d3.select("#svg_chart")
+            .attr("width", width_ + margin.left + margin.right)
+            .attr("height", height_ + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", 
+                  "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+          // Scale the range of the data in the domains
+          x.domain(Rrows.map(function(d) { return d.pro; }));
+          y.domain([0, d3.max(Rrows, function(d) { return d.times; })]);
+
+          // append the rectangles for the bar chart
+          svg_ch.selectAll(".bar")
+              .data(Rrows)
+            .enter().append("rect")
+              .attr("class", "bar")
+              .attr("x", function(d) { return x(d.pro); })
+              .attr("width", x.bandwidth())
+              .attr("y", function(d) { return y(d.times); })
+              .attr("height", function(d) { return height_ - y(d.times); });
+
+          // add the x Axis
+          svg_ch.append("g")
+              .attr("transform", "translate(0," + height_ + ")")
+              .call(d3.axisBottom(x));
+
+          // add the y Axis
+          svg_ch.append("g")
+              .call(d3.axisLeft(y));
+
+        }
+      });
+      
+    });
+  })
+
+    d3.select(self.frameElement).style("height", height + "px");
+
+    svg.append("defs").append("path")
+        .datum({type: "Sphere"})
+        .attr("id", "sphere")
+        .attr("d", path);
+
+    svg.append("use")
+        .attr("class", "stroke")
+        .attr("xlink:href", "#sphere");
+
+    svg.append("use")
+        .attr("class", "fill")
+        .attr("xlink:href", "#sphere");
+
+    svg.append("path")
+        .datum(graticule)
+        .attr("class", "graticule")
+        .attr("d", path);
+
+    </script>
+  </body>
+</html>

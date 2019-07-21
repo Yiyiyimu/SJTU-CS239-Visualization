@@ -1,0 +1,138 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title> Notebook By Shuyang</title>
+        <style>
+            .body {                                
+                background:url(https://cdn.pixabay.com/photo/2017/01/24/03/53/plant-2004483_1280.jpg) no-repeat center center;
+                background-size:cover;
+            }
+        </style>
+    </head>
+    <body class='body'>
+        <h1> My Notebook</h1>
+        <h2> All notes</h2>
+
+        <ul id='ul1'>
+
+        </ul>
+
+        <ul id='ul2'>
+            <button class='button' id='sel' onclick='selAll()' >全选</button>
+            <button id='del' onclick='del()' >删除</button>
+        </ul>
+
+        <h2> Add a new note</h2>
+        
+        
+        <div id='butt'>
+            <p>Enter the note titles: <input type='text' id='title' name='title'> </p>
+            <p> <textarea rows="20" cols="50" id='context'></textarea> </p>
+            <button id='sav' onclick="save()">Save</button>
+            <p id='warning1'></p>
+        </div>
+
+        <ul id='ul3'>
+
+        </ul>
+
+        <script>
+            var list = document.getElementById('ul1')
+            var inp_context = document.getElementById('context')
+            var inp_title = document.getElementById('title')
+            var button_sav = document.getElementById('sav')
+            var button_del = document.getElementById('del')
+            var button_sel = document.getElementById('sel')
+
+            function refresh() {
+                var count = 0
+                count = newNum()
+                if(count > 0) 
+                    button_del.innerText = '删除(' + count + ')'
+                else 
+                    button_del.innerText = '删除'
+            }
+            
+            
+            function save() {
+                var context = inp_context.value
+                var title = inp_title.value
+                inp_title.value = ''
+                inp_context.value = ''
+
+                var listItem = document.createElement('li')
+                var list_context = document.createElement('span')
+                var list_title = document.createElement('span')
+                var list_cb = document.createElement('input')
+                list_cb.type = 'checkbox'
+                list_cb.name = 'check'
+                list_cb.onclick = function() {
+                    var count = 0
+                    count = newNum()
+                    if(count > 0) 
+                        button_del.innerText = '删除(' + count + ')'
+                    else 
+                        button_del.innerText = '删除'
+                }
+                list_title.style.fontWeight = 'bold'
+
+                if(title == '' && context == '')
+                    window.alert('Warning - empty notebook')
+                else if(title == '')
+                {
+                    window.alert('Warning - empty title.\nUse current time to complete title.')
+                    var myDate = new Date();
+                    title = myDate.toLocaleString()
+                }
+                else if(context == '')
+                    window.alert('Warning - empty context')
+
+                list_title.textContent = title + ' - '
+                list_context.textContent = context
+                listItem.appendChild(list_cb)
+                listItem.appendChild(list_title)
+                listItem.appendChild(list_context)
+                list.appendChild(listItem)                
+            }
+
+            function selAll()
+            {
+                field = document.getElementsByName('check')
+                for ( i = 0; i < field.length; i++) {
+                    field[i].checked = true
+                }
+                refresh()
+            }
+
+            function newNum()
+            {
+                field = document.getElementsByName('check')
+                var num = 0
+                for ( i = 0; i < field.length; i++) {
+                    if(field[i].checked == true) {
+                        num ++
+                    }
+                }
+                return num
+            }
+
+
+            function del()
+            {
+                var node = list.childNodes
+                if (node.length > 0) {
+                    for (var j = node.length-1; j > 0; j--) {
+                        if(node[j].firstChild.checked == true)
+                        list.removeChild(node[j]);
+                    }
+                }
+                else {
+                    document.getElementById('ul3').innerHTML = "No items could be delete";
+                }
+                refresh()
+            }
+
+        </script>
+
+    </body>
+</html>

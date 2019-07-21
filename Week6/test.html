@@ -1,0 +1,129 @@
+<html>
+    <head>
+        <title>test1</title>
+    </head>
+    <body>
+        <ul>
+            <button id='add' onclick='add()'>加</button>
+            <button id='del' onclick='del()' >减</button>
+            <button id='re' onclick='refresh()'>重置</button>
+        </ul>
+
+    </body>
+    <script src='https://d3js.org/d3.v5.min.js'></script>
+    <script>
+        function add() {
+            dataset.push(Math.random())
+            draw()
+        }
+        function del() {
+            dataset.pop()
+            draw()
+        }
+        function refresh() {
+            dataset = []
+            for (var i = 0; i < 20; i++){
+                dataset.push(Math.random())
+            }
+            draw()
+        }
+        
+        function draw(){
+            var updateRect = svg.selectAll('rect')
+                .data(dataset)
+            var enterRect = updateRect.enter()
+            var exitRect = updateRect.exit()
+            //1. 矩形的update部分的处理方法
+            updateRect.attr("fill","steelblue")		//设置颜色为steelblue
+                .attr("x", function(d,i){
+                    return xScale(i) + rectPadding/2;
+                } )
+                .attr("width", xScale.bandwidth() - rectPadding )
+                .attr("y",function(d){
+                    return yScale(d);
+                })
+                .attr("height", function(d){
+                    return height - padding.top - padding.bottom - yScale(d);
+                });
+                
+            //2. 矩形的enter部分的处理方法
+            enterRect.append("rect")
+                .attr("fill","steelblue")		//设置颜色为steelblue
+                .attr("x", function(d,i){
+                    return xScale(i) + rectPadding/2;
+                } )
+                .attr("width", xScale.bandwidth() - rectPadding )
+                .attr("y",function(d){
+                return yScale(d);
+                })
+                .attr("height", function(d){
+                    return height - padding.top - padding.bottom - yScale(d);
+                });
+                
+            //3. 矩形的exit部分的处理方法
+	        exitRect.remove();
+        }
+
+        var width = 600;
+        var height = 600;
+        var svg = d3.select('body')
+            .append('svg')
+            .attr('width',width)
+            .attr('height',height)
+
+        var padding = {left:30, right:30, top:20, bottom:20}
+        
+
+        var dataset = []
+        for (var i = 0; i < 20; i++){
+            dataset.push(Math.random())
+        }
+
+        //x轴的比例尺
+        var xScale = d3.scaleBand()
+            .domain(d3.range(dataset.length))
+            .range([0, width - padding.left - padding.right]);
+
+        //y轴的比例尺
+        var yScale = d3.scaleLinear()
+            .domain([0,1])
+            .range([height - padding.top - padding.bottom, 0]);
+
+        //svg.selectAll("rect")
+
+        var rectPadding = 4
+        var rects = svg.selectAll("rect")
+            .data(dataset)
+            .enter()
+            .append("rect")
+            .attr('fill','steelblue')
+            .attr("transform","translate(" + padding.left + "," + padding.top + ")")
+            .attr("x", function(d,i){
+                return xScale(i) + rectPadding/2;
+            } )
+            .attr("width", xScale.bandwidth() - rectPadding )
+            
+            .attr("y",function(d){
+                var min = yScale.domain()[0];
+                return yScale(min);
+            })
+            .attr("height", function(d){
+                return 0;
+            })
+            .transition()
+            .delay(function(d,i){
+                return i * 100;
+            })
+            .duration(1000)
+            .ease(d3.easeBounce)
+            
+            .attr("y",function(d){
+                return yScale(d);
+            })
+            .attr("height", function(d){
+                return height - padding.top - padding.bottom - yScale(d);
+            });
+
+            
+    </script>
+</html>

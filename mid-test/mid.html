@@ -1,0 +1,154 @@
+<html>
+    <head>
+        <title>Mid-Hotel</title>
+    </head>
+    <body>
+        <button type="button" onclick='Ar()'>Area</button>
+        <button type="button" onclick='Gr()'>Group</button>
+        <button type="button" onclick='Re()'>Reservation</button>
+        <button type="button" onclick='Cl()'>Clients' age</button>
+        <button type="button" onclick='Ge()'>Gender</button>
+        <button type="button" onclick='Oc()'>Occupancy</button>
+    </body>
+    <script src='https://d3js.org/d3.v4.min.js'></script>
+    <script>
+        function Ge(){
+            var updateRect = svg.selectAll('rect')
+                .data(dataset)
+            var exitRect = updateRect.exit()
+            updateRect
+                .data(female)
+                .enter()
+                .append("rect")
+                .attr('fill','steelblue')
+                .attr("x", function(d,i){
+                    return padding.left+ i * rectStep;
+                } )
+                .attr("width", rectWidth)
+                .attr("y",function(d){
+                    return height-padding.bottom-d;
+                })
+                .attr("height", function(d){
+                    return d;
+                })
+            exitRect.remove();
+        }
+
+        function Oc(){
+            var updateRect = svg.selectAll('rect')
+                .data(dataset)
+            var exitRect = updateRect.exit()
+            updateRect
+                .data(occu)
+                .enter()
+                .append("rect")
+                .attr('fill','steelblue')
+                .attr("x", function(d,i){
+                    return padding.left+ i * rectStep;
+                } )
+                .attr("width", rectWidth)
+                .attr("y",function(d){
+                    return height-padding.bottom-d;
+                })
+                .attr("height", function(d){
+                    return d;
+                })
+            exitRect.remove();
+        }
+
+        var width = 1400;
+        var height = 500;
+        var svg = d3.select('body')
+            .append('svg')
+            .attr('width',width)
+            .attr('height',height)
+
+
+        var padding = {left:30, right:30, top:20, bottom:20}
+
+        var rectStep = 25
+        var rectWidth = 20
+        var rectPadding = 4
+
+        
+        var female = []
+        var local = []
+        var USA = []
+        var SA = []
+        var EU = []
+        var MEA = []
+        var ASIA = []
+        var bus = []
+        var tou = []
+        var DR = []
+        var agen = []
+        var AC = []
+        var u20 = []
+        var m55 = []
+        var female = []
+        var occu = []
+
+        d3.csv("hotel.csv",function(error,csvdata){  
+            if(error){  
+                console.log(error);  
+            } 
+            for (var i=0; i<csvdata.length; i++) {
+                female.push(csvdata[i].female)
+                local.push(csvdata[i].local)
+                USA.push(csvdata[i].USA)
+                SA.push(csvdata[i].SA)
+                EU.push(csvdata[i].EU)
+                MEA.push(csvdata[i].MEA)
+                ASIA.push(csvdata[i].ASIA)
+                bus.push(csvdata[i].businessmen)
+                tou.push(csvdata[i].tourists)
+                DR.push(csvdata[i].DR)
+                agen.push(csvdata[i].agency)
+                AC.push(csvdata[i].AC)
+                u20.push(csvdata[i].u20)
+                //var to35 = csvdata[i].'20to35'
+                //var to35 = csvdata[i].
+                m55.push(csvdata[i].m55)
+                female.push(csvdata[i].female)
+                occu.push(csvdata[i].occupancy)
+            }
+
+            var Area = [local, USA, SA, EU, MEA, ASIA]
+            var Group = [bus, tou]
+            var Reservation = [DR, agen, AC]
+            var ClientAge = [u20,m55]
+
+                        
+            
+
+            
+            dataset = []
+            for (var i=0; i<Area.length; i++) {
+                tmp = []
+                for (var j=1; j<=12; j++) {
+                    tmp.push({x: j,y:Area[i][j-1],y0:0})
+                }
+                dataset.push(tmp)
+            }
+            console.log(dataset)
+            console.log(d3.stack().keys(['local','USA','SA','EU','MEA','ASIA'])(dataset))
+            var rects = svg.selectAll("rect")
+                .data(d3.stack().keys(['local','USA','SA','EU','MEA','ASIA'])(dataset))
+                .enter()
+                .append("rect")
+                .attr('fill','steelblue')
+                .attr("x", function(d,i){
+                    return padding.left+ i * rectStep;
+                } )
+                .attr("width", rectWidth)
+                .attr("y",function(d, i){
+                    return height-padding.bottom-d[i];
+                })
+                .attr("height", function(d,i){
+                    return d[i];
+                })           
+        });
+        
+        
+    </script>
+</html>

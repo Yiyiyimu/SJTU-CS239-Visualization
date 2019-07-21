@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Simple DOM example</title>
+    <style>
+      html, body {
+        height: 100%;
+        min-height: 100%;
+      }
+
+    #flex{
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 100%;
+    }
+
+    #top{
+      flex:1;
+      background: red;
+    }
+
+    #bottom{
+      background:green;
+      height: 200px;
+    }
+    </style>
+  </head>
+  <body>
+      <div id="flex">
+          <div id="top">自适应</div>
+          <div id="bottom">定宽</div>
+        </div>
+  </body>
+</html>

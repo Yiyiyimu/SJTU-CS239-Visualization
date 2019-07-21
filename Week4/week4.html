@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Week4 Assignment</title>
+        <link rel="stylesheet" href="flex.css">
+    </head>
+    <body>
+        <div id='all'>
+            <div id='top'>
+                <div id='top_left'>
+                    <button id='change_color'>RED!</button>
+                </div>
+                <div id='top_right'></div>
+            </div>
+            <div id='bottom'></div>
+        </div>
+        <script>
+            var sec = document.getElementById('top_left')
+            var cc = document.getElementById('change_color')
+            cc.onclick = function(){
+                console.log(sec.style)
+                if (sec.style.backgroundColor != 'firebrick') {
+                    sec.style.backgroundColor = 'firebrick'
+                    document.getElementById('change_color').innerHTML = 'WHITE AGAIN!'
+                }
+                else {
+                    sec.style.backgroundColor = 'white'
+                    document.getElementById('change_color').innerHTML = 'RED AGAIN!'
+                }
+            }
+        </script>
+    </body>
+</html>
